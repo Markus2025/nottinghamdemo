@@ -1,0 +1,36 @@
+/**
+ * 统一响应格式工具函数
+ */
+
+/**
+ * 成功响应
+ * @param {Object} res - Express response对象
+ * @param {*} data - 返回的数据
+ * @param {String} message - 消息
+ */
+function success(res, data = null, message = "success") {
+    res.json({
+        code: 200,
+        message,
+        data
+    });
+}
+
+/**
+ * 错误响应
+ * @param {Object} res - Express response对象
+ * @param {Number} code - 错误码
+ * @param {String} message - 错误消息
+ */
+function error(res, code = 500, message = "服务器内部错误") {
+    res.status(code >= 500 ? 500 : 400).json({
+        code,
+        message,
+        data: null
+    });
+}
+
+module.exports = {
+    success,
+    error
+};
