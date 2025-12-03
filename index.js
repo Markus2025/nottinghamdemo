@@ -59,3 +59,6 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+
+// 用来触发CI/CD，重启服务尝试连接数据库

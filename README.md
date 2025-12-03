@@ -2,7 +2,7 @@
 
 > 基于Express.js的RESTful API服务，为Nottingham房源小程序提供完整的后端支持
 
-## 项目概述
+## 项目概述：
 
 本项目是Nottingham房源小程序的后端服务，提供用户认证、房源管理、组队找室友、收藏等核心功能的API接口。
 
