@@ -1,7 +1,7 @@
 const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSSequelize = require('@adminjs/sequelize');
-const { sequelize } = require('./config/db');
+const { sequelize } = require('./db');
 const {
     User,
     Property,
@@ -9,7 +9,7 @@ const {
     TeamMember,
     TeamMessage,
     Favorite
-} = require('./models');
+} = require('../models');
 
 // 注册Sequelize适配器
 AdminJS.registerAdapter({
