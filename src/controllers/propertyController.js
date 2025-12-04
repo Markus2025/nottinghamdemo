@@ -18,11 +18,20 @@ async function getProperties(req, res, next) {
             location
         } = req.query;
 
+        // 添加调试日志
+        console.log('==================');
+        console.log('📥 收到房源列表请求');
+        console.log('请求来源:', req.headers['user-agent']);
+        console.log('请求参数:', req.query);
+        console.log('==================');
+
         // 构建查询条件
         const where = { status: 'available' };
 
-        if (type !== 'all') {
+        // 优化type参数处理：只有明确传入且不是'all'时才过滤
+        if (type && type !== 'all' && type !== 'undefined') {
             where.type = type;
+            console.log('🔍 添加type过滤:', type);
         }
 
         if (minPrice || maxPrice) {
@@ -39,6 +48,8 @@ async function getProperties(req, res, next) {
             where.location = { [Op.like]: `%${location}%` };
         }
 
+        console.log('🔍 最终查询条件:', JSON.stringify(where, null, 2));
+
         // 分页查询
         const offset = (parseInt(page) - 1) * parseInt(limit);
         const { count, rows } = await Property.findAndCountAll({
@@ -48,6 +59,14 @@ async function getProperties(req, res, next) {
             order: [['createdAt', 'DESC']]
         });
 
+        console.log('✅ 查询结果:', count, '条数据');
+        console.log('📤 返回数据:', {
+            list: rows.length,
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit)
+        });
+
         success(res, {
             list: rows,
             total: count,
@@ -55,6 +74,7 @@ async function getProperties(req, res, next) {
             limit: parseInt(limit)
         });
     } catch (err) {
+        console.error('❌ 查询房源失败:', err);
         next(err);
     }
 }

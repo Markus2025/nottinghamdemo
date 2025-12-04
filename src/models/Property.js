@@ -17,7 +17,7 @@ const Property = sequelize.define("Property", {
         comment: '描述'
     },
     type: {
-        type: DataTypes.ENUM('apartment', 'house'),
+        type: DataTypes.STRING(50),
         allowNull: false,
         comment: '类型'
     },

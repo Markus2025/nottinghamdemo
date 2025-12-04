@@ -60,5 +60,4 @@ async function bootstrap() {
 
 bootstrap();
 
-
-// 用来触发CI/CD，重启服务尝试连接数据库
+// 修复房源接口type字段问题，触发重新部署
