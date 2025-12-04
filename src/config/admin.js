@@ -74,6 +74,7 @@ const adminOptions = {
                     floor: { isVisible: true },
                     totalFloors: { isVisible: true },
                     imageFiles: {
+                        isArray: true,
                         isVisible: { list: false, filter: false, show: true, edit: true },
                     },
                     images: {

@@ -38,10 +38,10 @@ const propertyImageUploadFeature = uploadFeature({
     ...uploadConfig,
     properties: {
         key: 'imageFiles',
-        multiple: true, // 支持多图上传
+        multiple: true,
     },
+    // 关键：指定上传路径
     uploadPath: (record, filename) => {
-        // 自定义上传路径：properties/{propertyId}/{timestamp}-{filename}
         const timestamp = Date.now();
         const propertyId = record.id || 'new';
         return `properties/${propertyId}/${timestamp}-${filename}`;
