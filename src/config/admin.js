@@ -97,36 +97,6 @@ const adminOptions = {
                     createdAt: { isVisible: { list: true, filter: true, show: true, edit: false } },
                     updatedAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
                 },
-                actions: {
-                    new: {
-                        after: async (response, request, context) => {
-                            // 上传后自动同步imageFiles到images字段
-                            if (response.record && response.record.params.imageFiles) {
-                                const imageFiles = response.record.params.imageFiles;
-                                const urls = Array.isArray(imageFiles)
-                                    ? imageFiles.map(file => getPublicUrl(file.key))
-                                    : [getPublicUrl(imageFiles.key)];
-
-                                await response.record.update({ images: urls });
-                            }
-                            return response;
-                        },
-                    },
-                    edit: {
-                        after: async (response, request, context) => {
-                            // 编辑后自动同步imageFiles到images字段
-                            if (response.record && response.record.params.imageFiles) {
-                                const imageFiles = response.record.params.imageFiles;
-                                const urls = Array.isArray(imageFiles)
-                                    ? imageFiles.map(file => getPublicUrl(file.key))
-                                    : [getPublicUrl(imageFiles.key)];
-
-                                await response.record.update({ images: urls });
-                            }
-                            return response;
-                        },
-                    },
-                },
             },
         },
         {
