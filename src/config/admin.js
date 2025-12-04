@@ -2,7 +2,7 @@ const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSSequelize = require('@adminjs/sequelize');
 const { sequelize } = require('./db');
-const { propertyImageUploadFeature } = require('./upload');
+const { propertyImageUploadFeature, getPublicUrl } = require('./upload');
 const {
     User,
     Property,
@@ -78,8 +78,8 @@ const adminOptions = {
                     },
                     images: {
                         type: 'textarea',
-                        isVisible: { list: false, filter: false, show: true, edit: true },
-                        description: '图片URL数组（JSON格式），上传图片后会自动填充'
+                        isVisible: { list: false, filter: false, show: true, edit: false },
+                        description: '图片URL数组（自动生成，无需手动填写）'
                     },
                     tags: { type: 'textarea', isVisible: true },
                     facilities: { type: 'textarea', isVisible: true },
@@ -95,6 +95,36 @@ const adminOptions = {
                     },
                     createdAt: { isVisible: { list: true, filter: true, show: true, edit: false } },
                     updatedAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+                },
+                actions: {
+                    new: {
+                        after: async (response, request, context) => {
+                            // 上传后自动同步imageFiles到images字段
+                            if (response.record && response.record.params.imageFiles) {
+                                const imageFiles = response.record.params.imageFiles;
+                                const urls = Array.isArray(imageFiles)
+                                    ? imageFiles.map(file => getPublicUrl(file.key))
+                                    : [getPublicUrl(imageFiles.key)];
+
+                                await response.record.update({ images: urls });
+                            }
+                            return response;
+                        },
+                    },
+                    edit: {
+                        after: async (response, request, context) => {
+                            // 编辑后自动同步imageFiles到images字段
+                            if (response.record && response.record.params.imageFiles) {
+                                const imageFiles = response.record.params.imageFiles;
+                                const urls = Array.isArray(imageFiles)
+                                    ? imageFiles.map(file => getPublicUrl(file.key))
+                                    : [getPublicUrl(imageFiles.key)];
+
+                                await response.record.update({ images: urls });
+                            }
+                            return response;
+                        },
+                    },
                 },
             },
         },

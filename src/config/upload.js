@@ -11,6 +11,13 @@ const s3 = new AWS.S3({
     region: process.env.COS_REGION || 'ap-shanghai',
 });
 
+// 获取COS公网URL
+function getPublicUrl(key) {
+    const bucket = process.env.COS_BUCKET;
+    const region = process.env.COS_REGION || 'ap-shanghai';
+    return `https://${bucket}.cos.${region}.myqcloud.com/${key}`;
+}
+
 // 上传配置
 const uploadConfig = {
     provider: {
@@ -30,8 +37,8 @@ const uploadConfig = {
 const propertyImageUploadFeature = uploadFeature({
     ...uploadConfig,
     properties: {
-        key: 'imageFiles', // 新字段用于存储上传的文件
-        multiple: true,
+        key: 'imageFiles',
+        multiple: true, // 支持多图上传
     },
     uploadPath: (record, filename) => {
         // 自定义上传路径：properties/{propertyId}/{timestamp}-{filename}
@@ -45,4 +52,5 @@ module.exports = {
     s3,
     uploadConfig,
     propertyImageUploadFeature,
+    getPublicUrl,
 };
