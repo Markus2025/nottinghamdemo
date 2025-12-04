@@ -62,6 +62,10 @@ const Property = sequelize.define("Property", {
         type: DataTypes.JSON,
         comment: '图片URL数组'
     },
+    imageFiles: {
+        type: DataTypes.JSON,
+        comment: '上传的图片文件信息（AdminJS使用）'
+    },
     tags: {
         type: DataTypes.JSON,
         comment: '标签'
