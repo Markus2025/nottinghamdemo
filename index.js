@@ -17,9 +17,7 @@ const favoriteRoutes = require("./src/routes/favorites");
 const logger = morgan("tiny");
 const app = express();
 
-// 中间件
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// 重要：先设置cors和logger，但不要设置body-parser
 app.use(cors());
 app.use(logger);
 
@@ -62,8 +60,14 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
   }
 );
 
+// AdminJS必须在body-parser之前
 app.use(admin.options.rootPath, adminRouter);
 console.log(`📊 AdminJS 已启动在 ${admin.options.rootPath}`);
+
+// ==================== Body Parser ====================
+// AdminJS之后才设置body-parser
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 // ==================== API路由 ====================
 app.use("/api/auth", authRoutes);
@@ -129,4 +133,4 @@ async function bootstrap() {
 
 bootstrap();
 
-// 集成AdminJS后台管理系统
+// AdminJS后台管理系统 - 中间件顺序已优化
