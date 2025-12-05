@@ -22,6 +22,9 @@ COPY package*.json /app/
 RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
 # RUN npm config set registry https://registry.npm.taobao.org/
 
+# 清除 npm 缓存，避免缓存损坏导致安装失败
+RUN npm cache clean --force
+
 # npm 安装依赖
 RUN npm install
 
