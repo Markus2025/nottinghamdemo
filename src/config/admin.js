@@ -2,7 +2,6 @@ const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSSequelize = require('@adminjs/sequelize');
 const { sequelize } = require('./db');
-const { propertyImageUploadFeature, getPublicUrl } = require('./upload');
 const {
     User,
     Property,
@@ -53,7 +52,6 @@ const adminOptions = {
         },
         {
             resource: Property,
-            features: [propertyImageUploadFeature],
             options: {
                 navigation: {
                     name: '房源管理',
@@ -73,14 +71,13 @@ const adminOptions = {
                     area: { isVisible: true },
                     floor: { isVisible: true },
                     totalFloors: { isVisible: true },
-                    imageFiles: {
-                        isArray: true,
-                        isVisible: { list: false, filter: false, show: true, edit: true },
-                    },
                     images: {
                         type: 'textarea',
-                        isVisible: { list: false, filter: false, show: true, edit: false },
-                        description: '图片URL数组（自动生成，无需手动填写）'
+                        isVisible: true,
+                        description: '图片URL列表，每行一个链接。例如：\nhttps://example.com/image1.jpg\nhttps://example.com/image2.jpg'
+                    },
+                    imageFiles: {
+                        isVisible: false
                     },
                     tags: { type: 'textarea', isVisible: true },
                     facilities: { type: 'textarea', isVisible: true },
