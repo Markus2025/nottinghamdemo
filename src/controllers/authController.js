@@ -2,7 +2,6 @@ const { User } = require("../models");
 const { success, error } = require("../utils/response");
 const { getOpenId } = require("../utils/wechat");
 const { generateToken } = require("../middleware/auth");
-const { processAvatarUrl } = require("../utils/avatarHandler");
 
 /**
  * 微信登录
@@ -24,61 +23,20 @@ async function login(req, res, next) {
 
         if (!user) {
             // 新用户，创建记录
-            // 处理头像URL（如果是微信临时URL，自动转换为永久URL）
-            let avatarUrl = userInfo?.avatarUrl || '';
-            if (avatarUrl) {
-                // 先创建用户获取ID，然后处理头像
-                const tempUser = await User.create({
-                    openId: openid,
-                    nickname: userInfo?.nickName || '微信用户',
-                    avatar: avatarUrl
-                });
-
-                // 异步处理头像（不阻塞响应）
-                processAvatarUrl(avatarUrl, tempUser.id)
-                    .then(permanentUrl => {
-                        if (permanentUrl !== avatarUrl) {
-                            tempUser.update({ avatar: permanentUrl });
-                            console.log('✅ 新用户头像已更新为永久URL');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('⚠️  头像处理失败（不影响登录）:', err.message);
-                    });
-
-                user = tempUser;
-            } else {
-                user = await User.create({
-                    openId: openid,
-                    nickname: userInfo?.nickName || '微信用户',
-                    avatar: ''
-                });
-            }
+            // ✅ 不保存微信头像，设为null，让前端使用默认头像系统
+            user = await User.create({
+                openId: openid,
+                nickname: userInfo?.nickName || '微信用户',
+                avatar: null  // 前端会根据用户ID自动分配彩色默认头像
+            });
+            console.log('✅ 新用户创建成功，avatar设为null，使用前端默认头像');
         } else if (userInfo) {
             // 更新用户信息
-            console.log('🔍 更新用户信息 - Avatar URL:', userInfo.avatarUrl);
-
-            const updateData = {
+            // ✅ 只更新昵称，不保存微信头像
+            await user.update({
                 nickname: userInfo.nickName
-            };
-
-            // 处理头像URL
-            if (userInfo.avatarUrl) {
-                // 异步处理头像（不阻塞响应）
-                processAvatarUrl(userInfo.avatarUrl, user.id)
-                    .then(permanentUrl => {
-                        user.update({ avatar: permanentUrl });
-                        console.log('✅ 用户头像已更新为永久URL');
-                    })
-                    .catch(err => {
-                        console.error('⚠️  头像处理失败（不影响登录）:', err.message);
-                    });
-
-                // 先保存原URL，后台异步更新永久URL
-                updateData.avatar = userInfo.avatarUrl;
-            }
-
-            await user.update(updateData);
+            });
+            console.log('✅ 用户信息已更新（仅昵称，头像保持null）');
         }
 
         // 生成token
@@ -90,7 +48,7 @@ async function login(req, res, next) {
                 id: user.id,
                 openId: user.openId,
                 nickname: user.nickname,
-                avatar: user.avatar,
+                avatar: null,  // ✅ 强制返回null，让前端使用默认头像
                 campus: user.campus,
                 motto: user.motto
             }
@@ -124,16 +82,13 @@ async function refreshToken(req, res, next) {
  */
 async function updateProfile(req, res, next) {
     try {
-        const { nickname, avatar, campus, motto } = req.body;
+        const { nickname, campus, motto } = req.body;
         const user = req.user;
 
         // 更新用户信息
         const updateData = {};
         if (nickname !== undefined) updateData.nickname = nickname;
-        if (avatar !== undefined) {
-            console.log('🔍 更新头像 - Avatar URL:', avatar);
-            updateData.avatar = avatar;
-        }
+        // ✅ 不接受avatar更新，忽略前端传来的avatar
         if (campus !== undefined) updateData.campus = campus;
         if (motto !== undefined) updateData.motto = motto;
 
@@ -143,7 +98,7 @@ async function updateProfile(req, res, next) {
             id: user.id,
             openId: user.openId,
             nickname: user.nickname,
-            avatar: user.avatar,
+            avatar: null,  // ✅ 强制返回null，让前端使用默认头像
             campus: user.campus,
             motto: user.motto
         });
