@@ -92,44 +92,30 @@ app.get("/", (req, res) => {
 });
 
 // 错误处理中间件（必须放在最后）
-app.use(errorHandler);
-
-const port = process.env.PORT || 80;
-
-async function bootstrap() {
-  try {
-    console.log('=================================');
-    console.log('🚀 正在启动 Nottingham API 服务...');
-    console.log('=================================');
-
-    // 先启动HTTP服务器（确保健康检查能通过）
-    const server = app.listen(port, () => {
-      console.log('✅ Nottingham API服务启动成功');
-      console.log(`📡 端口: ${port}`);
-      console.log(`🗄️  数据库: nottingham_db`);
-      console.log(`📊 管理后台: http://localhost:${port}${admin.options.rootPath}`);
-      console.log(`🚀 API文档: 参见 api.md`);
-      console.log('=================================');
-      console.log('🔐 管理员登录信息:');
-      console.log(`   邮箱: ${process.env.ADMIN_EMAIL || 'admin@nottingham.com'}`);
-      console.log(`   密码: ${process.env.ADMIN_PASSWORD || 'admin123456'}`);
-      console.log('=================================');
+console.log(`🗄️  数据库: nottingham_db`);
+console.log(`📊 管理后台: http://localhost:${port}${admin.options.rootPath}`);
+console.log(`🚀 API文档: 参见 api.md`);
+console.log('=================================');
+console.log('🔐 管理员登录信息:');
+console.log(`   邮箱: ${process.env.ADMIN_EMAIL || 'admin@nottingham.com'}`);
+console.log(`   密码: ${process.env.ADMIN_PASSWORD || 'admin123456'}`);
+console.log('=================================');
     });
 
-    // 然后初始化数据库（异步，不阻塞服务启动）
-    initDB()
-      .then(() => {
-        console.log('✅ 数据库初始化完成，服务完全就绪');
-      })
-      .catch(error => {
-        console.error('⚠️  数据库初始化失败，但服务继续运行:', error.message);
-        console.error('请检查环境变量配置：MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_ADDRESS');
-      });
+// 然后初始化数据库（异步，不阻塞服务启动）
+initDB()
+  .then(() => {
+    console.log('✅ 数据库初始化完成，服务完全就绪');
+  })
+  .catch(error => {
+    console.error('⚠️  数据库初始化失败，但服务继续运行:', error.message);
+    console.error('请检查环境变量配置：MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_ADDRESS');
+  });
 
   } catch (error) {
-    console.error('❌ 服务启动失败:', error);
-    process.exit(1);
-  }
+  console.error('❌ 服务启动失败:', error);
+  process.exit(1);
+}
 }
 
 bootstrap();
