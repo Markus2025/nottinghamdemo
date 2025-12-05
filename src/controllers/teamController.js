@@ -431,6 +431,7 @@ function formatTeamData(team) {
         nickname: tm.user.nickname,
         avatar: tm.user.avatar,
         campus: tm.user.campus,
+        note: tm.note || '',
         joinedAt: tm.joinedAt
     }));
 
@@ -442,7 +443,8 @@ function formatTeamData(team) {
             id: team.creator.id,
             nickname: team.creator.nickname,
             avatar: team.creator.avatar,
-            campus: team.creator.campus
+            campus: team.creator.campus,
+            note: team.teamMembers.find(tm => tm.user.id === team.creator.id)?.note || ''
         },
         members,
         maxMembers: team.maxMembers,
@@ -453,6 +455,94 @@ function formatTeamData(team) {
     };
 }
 
+/**
+ * 获取指定组队详情
+ * GET /api/teams/:teamId
+ */
+async function getTeamDetail(req, res, next) {
+    try {
+        const { teamId } = req.params;
+        const userId = req.userId;
+
+        // 检查用户是否在该组队中
+        const membership = await TeamMember.findOne({
+            where: { teamId, userId }
+        });
+
+        if (!membership) {
+            return error(res, 403, "您不是该组队成员，无法查看详情");
+        }
+
+        // 获取组队详情
+        const teamData = await getTeamDetails(teamId);
+
+        if (!teamData) {
+            return error(res, 404, "组队不存在");
+        }
+
+        success(res, teamData);
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * 更新成员个人备注
+ * PUT /api/teams/:teamId/members/:userId/note
+ */
+async function updateMemberNote(req, res, next) {
+    try {
+        const { teamId, userId } = req.params;
+        const { note } = req.body;
+        const currentUserId = req.userId;
+
+        // 验证：只能修改自己的备注
+        if (parseInt(userId) !== currentUserId) {
+            return error(res, 403, "您只能编辑自己的备注");
+        }
+
+        // 验证备注长度
+        if (note && note.length > 500) {
+            return error(res, 400, "备注内容不能超过500字符");
+        }
+
+        // 检查用户是否在该组队中
+        const membership = await TeamMember.findOne({
+            where: { teamId, userId }
+        });
+
+        if (!membership) {
+            return error(res, 404, "组队不存在或您不是该组队成员");
+        }
+
+        // 更新备注
+        await membership.update({ note: note || '' });
+
+        // 获取更新后的成员信息
+        const updatedMembership = await TeamMember.findOne({
+            where: { teamId, userId },
+            include: [{
+                model: User,
+                as: 'user',
+                attributes: ['id', 'nickname', 'avatar', 'campus']
+            }]
+        });
+
+        const memberData = {
+            id: updatedMembership.user.id,
+            nickname: updatedMembership.user.nickname,
+            avatar: updatedMembership.user.avatar,
+            campus: updatedMembership.user.campus,
+            note: updatedMembership.note || '',
+            joinedAt: updatedMembership.joinedAt
+        };
+
+        success(res, memberData, "备注更新成功");
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     createTeam,
     getTeams,
@@ -460,5 +550,7 @@ module.exports = {
     joinTeam,
     leaveTeam,
     getTeamMessages,
-    sendTeamMessage
+    sendTeamMessage,
+    getTeamDetail,
+    updateMemberNote
 };

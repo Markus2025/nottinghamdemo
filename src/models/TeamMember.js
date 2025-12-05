@@ -21,6 +21,11 @@ const TeamMember = sequelize.define("TeamMember", {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         comment: '加入时间'
+    },
+    note: {
+        type: DataTypes.STRING(500),
+        defaultValue: '',
+        comment: '成员个人备注'
     }
 }, {
     tableName: 'TeamMembers',

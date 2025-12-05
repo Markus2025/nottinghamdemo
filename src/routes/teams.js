@@ -8,7 +8,9 @@ const {
     joinTeam,
     leaveTeam,
     getTeamMessages,
-    sendTeamMessage
+    sendTeamMessage,
+    getTeamDetail,
+    updateMemberNote
 } = require("../controllers/teamController");
 
 // 所有组队接口都需要认证
@@ -34,5 +36,11 @@ router.get("/:teamId/messages", getTeamMessages);
 
 // 发送组队消息
 router.post("/:teamId/messages", sendTeamMessage);
+
+// 更新成员备注（必须在 /:teamId 之前）
+router.put("/:teamId/members/:userId/note", updateMemberNote);
+
+// 获取指定组队详情（必须放在最后，避免路由冲突）
+router.get("/:teamId", getTeamDetail);
 
 module.exports = router;
