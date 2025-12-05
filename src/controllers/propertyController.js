@@ -3,6 +3,56 @@ const { success, error } = require("../utils/response");
 const { Op } = require("sequelize");
 
 /**
+ * 确保images字段是有效的数组格式
+ * 支持多种输入格式：JSON数组字符串、换行分隔、逗号分隔
+ * @param {*} images - 原始images数据
+ * @returns {Array} - 标准化的images数组
+ */
+function normalizeImages(images) {
+    // 如果已经是数组，直接返回
+    if (Array.isArray(images)) {
+        return images;
+    }
+
+    // 如果是字符串，尝试解析
+    if (typeof images === 'string') {
+        // 去掉首尾空格
+        images = images.trim();
+
+        // 如果是空字符串，返回空数组
+        if (!images) {
+            return [];
+        }
+
+        // 如果是JSON字符串，解析它
+        if (images.startsWith('[')) {
+            try {
+                const parsed = JSON.parse(images);
+                return Array.isArray(parsed) ? parsed : [parsed];
+            } catch (e) {
+                console.error('解析images JSON失败:', e);
+            }
+        }
+
+        // 如果是换行分隔的URL列表
+        if (images.includes('\n')) {
+            return images.split('\n').map(url => url.trim()).filter(url => url);
+        }
+
+        // 如果是逗号分隔的URL列表
+        if (images.includes(',')) {
+            return images.split(',').map(url => url.trim()).filter(url => url);
+        }
+
+        // 单个URL
+        return [images];
+    }
+
+    // 其他情况返回空数组
+    return [];
+}
+
+/**
  * 获取房源列表
  * GET /api/properties
  */

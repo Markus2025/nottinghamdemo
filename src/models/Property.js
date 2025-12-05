@@ -60,7 +60,44 @@ const Property = sequelize.define("Property", {
     },
     images: {
         type: DataTypes.JSON,
-        comment: '图片URL数组'
+        comment: '图片URL数组',
+        set(value) {
+            // 自动转换为数组格式
+            let normalized = value;
+
+            if (typeof value === 'string') {
+                value = value.trim();
+
+                // JSON字符串
+                if (value.startsWith('[')) {
+                    try {
+                        normalized = JSON.parse(value);
+                    } catch (e) {
+                        console.error('解析images JSON失败:', e);
+                        normalized = [];
+                    }
+                }
+                // 换行分隔
+                else if (value.includes('\n')) {
+                    normalized = value.split('\n').map(url => url.trim()).filter(url => url);
+                }
+                // 逗号分隔
+                else if (value.includes(',')) {
+                    normalized = value.split(',').map(url => url.trim()).filter(url => url);
+                }
+                // 单个URL
+                else {
+                    normalized = value ? [value] : [];
+                }
+            }
+
+            // 确保是数组
+            if (!Array.isArray(normalized)) {
+                normalized = normalized ? [normalized] : [];
+            }
+
+            this.setDataValue('images', normalized);
+        }
     },
     imageFiles: {
         type: DataTypes.JSON,
