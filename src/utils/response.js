@@ -23,7 +23,11 @@ function success(res, data = null, message = "success") {
  * @param {String} message - 错误消息
  */
 function error(res, code = 500, message = "服务器内部错误") {
-    res.status(code >= 500 ? 500 : 400).json({
+    // 业务逻辑错误(code >= 1000)使用200 HTTP状态
+    // HTTP错误(400-599)使用对应的HTTP状态
+    const httpStatus = code >= 1000 ? 200 : (code >= 500 ? 500 : (code >= 400 ? code : 200));
+
+    res.status(httpStatus).json({
         code,
         message,
         data: null
