@@ -30,6 +30,7 @@ async function login(req, res, next) {
             });
         } else if (userInfo) {
             // 更新用户信息
+            console.log('🔍 更新用户信息 - Avatar URL:', userInfo.avatarUrl);
             await user.update({
                 nickname: userInfo.nickName,
                 avatar: userInfo.avatarUrl
@@ -85,7 +86,10 @@ async function updateProfile(req, res, next) {
         // 更新用户信息
         const updateData = {};
         if (nickname !== undefined) updateData.nickname = nickname;
-        if (avatar !== undefined) updateData.avatar = avatar;
+        if (avatar !== undefined) {
+            console.log('🔍 更新头像 - Avatar URL:', avatar);
+            updateData.avatar = avatar;
+        }
         if (campus !== undefined) updateData.campus = campus;
         if (motto !== undefined) updateData.motto = motto;
 
