@@ -72,6 +72,7 @@ app.use(express.json());
 // ==================== API路由 ====================
 app.use("/api/auth", authRoutes);
 app.use("/api/user", authRoutes);
+app.use("/api/users", authRoutes); // 支持复数形式
 app.use("/api/properties", propertyRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/favorites", favoriteRoutes);
