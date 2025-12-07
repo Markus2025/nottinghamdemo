@@ -64,9 +64,30 @@ const adminOptions = {
                     type: { isVisible: true },
                     price: { isVisible: true },
                     deposit: { isVisible: true },
-                    location: { isVisible: true },
+                    location: {
+                        isVisible: true,
+                        availableValues: [
+                            { value: 'Lenton', label: 'Lenton' },
+                            { value: 'Beeston', label: 'Beeston' },
+                            { value: 'Wollaton', label: 'Wollaton' },
+                            { value: 'Dunkirk', label: 'Dunkirk' },
+                            { value: 'City Centre', label: 'City Centre' },
+                            { value: 'Arboretum', label: 'Arboretum' },
+                            { value: 'Radford', label: 'Radford' },
+                        ]
+                    },
                     address: { isVisible: true },
-                    bedrooms: { isVisible: true },
+                    bedrooms: {
+                        isVisible: true,
+                        availableValues: [
+                            { value: 1, label: '1居室' },
+                            { value: 2, label: '2居室' },
+                            { value: 3, label: '3居室' },
+                            { value: 4, label: '4居室' },
+                            { value: 5, label: '5居室' },
+                            { value: 6, label: '6居室' },
+                        ]
+                    },
                     bathrooms: { isVisible: true },
                     area: { isVisible: true },
                     floor: { isVisible: true },
