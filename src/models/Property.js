@@ -77,8 +77,16 @@ const Property = sequelize.define("Property", {
     images: {
         type: DataTypes.JSON,
         comment: '图片URL数组',
+        get() {
+            // Getter: 将数组转换为多行字符串（AdminJS显示用）
+            const value = this.getDataValue('images');
+            if (Array.isArray(value) && value.length > 0) {
+                return value.join('\n');
+            }
+            return value;
+        },
         set(value) {
-            // 自动转换为数组格式
+            // Setter: 自动转换为数组格式
             let normalized = value;
 
             if (typeof value === 'string') {
@@ -122,8 +130,16 @@ const Property = sequelize.define("Property", {
     tags: {
         type: DataTypes.JSON,
         comment: '标签',
+        get() {
+            // Getter: 将数组转换为多行字符串（AdminJS显示用）
+            const value = this.getDataValue('tags');
+            if (Array.isArray(value) && value.length > 0) {
+                return value.join('\n');
+            }
+            return value;
+        },
         set(value) {
-            // 处理null、undefined或空值
+            // Setter: 处理null、undefined或空值
             if (value === null || value === undefined || value === '') {
                 this.setDataValue('tags', null);
                 return;
@@ -177,6 +193,14 @@ const Property = sequelize.define("Property", {
     facilities: {
         type: DataTypes.JSON,
         comment: '配套设施',
+        get() {
+            // Getter: 将数组转换为多行字符串（AdminJS显示用）
+            const value = this.getDataValue('facilities');
+            if (Array.isArray(value) && value.length > 0) {
+                return value.join('\n');
+            }
+            return value;
+        },
         set(value) {
             // 处理null、undefined或空值
             if (value === null || value === undefined || value === '') {
