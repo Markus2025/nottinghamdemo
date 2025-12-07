@@ -105,11 +105,83 @@ const Property = sequelize.define("Property", {
     },
     tags: {
         type: DataTypes.JSON,
-        comment: '标签'
+        comment: '标签',
+        set(value) {
+            let normalized = value;
+
+            if (typeof value === 'string') {
+                value = value.trim();
+
+                // JSON字符串
+                if (value.startsWith('[')) {
+                    try {
+                        normalized = JSON.parse(value);
+                    } catch (e) {
+                        console.error('解析tags JSON失败:', e);
+                        normalized = [];
+                    }
+                }
+                // 换行分隔
+                else if (value.includes('\n')) {
+                    normalized = value.split('\n').map(tag => tag.trim()).filter(tag => tag);
+                }
+                // 逗号分隔
+                else if (value.includes(',')) {
+                    normalized = value.split(',').map(tag => tag.trim()).filter(tag => tag);
+                }
+                // 单个标签
+                else {
+                    normalized = value ? [value] : [];
+                }
+            }
+
+            // 确保是数组
+            if (!Array.isArray(normalized)) {
+                normalized = normalized ? [normalized] : [];
+            }
+
+            this.setDataValue('tags', normalized);
+        }
     },
     facilities: {
         type: DataTypes.JSON,
-        comment: '配套设施'
+        comment: '配套设施',
+        set(value) {
+            let normalized = value;
+
+            if (typeof value === 'string') {
+                value = value.trim();
+
+                // JSON字符串
+                if (value.startsWith('[')) {
+                    try {
+                        normalized = JSON.parse(value);
+                    } catch (e) {
+                        console.error('解析facilities JSON失败:', e);
+                        normalized = [];
+                    }
+                }
+                // 换行分隔
+                else if (value.includes('\n')) {
+                    normalized = value.split('\n').map(item => item.trim()).filter(item => item);
+                }
+                // 逗号分隔
+                else if (value.includes(',')) {
+                    normalized = value.split(',').map(item => item.trim()).filter(item => item);
+                }
+                // 单个设施
+                else {
+                    normalized = value ? [value] : [];
+                }
+            }
+
+            // 确保是数组
+            if (!Array.isArray(normalized)) {
+                normalized = normalized ? [normalized] : [];
+            }
+
+            this.setDataValue('facilities', normalized);
+        }
     },
     contactName: {
         type: DataTypes.STRING(255),
