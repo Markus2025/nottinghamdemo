@@ -107,10 +107,22 @@ const Property = sequelize.define("Property", {
         type: DataTypes.JSON,
         comment: '标签',
         set(value) {
+            // 处理null、undefined或空值
+            if (value === null || value === undefined || value === '') {
+                this.setDataValue('tags', null);
+                return;
+            }
+
             let normalized = value;
 
             if (typeof value === 'string') {
                 value = value.trim();
+
+                // 空字符串 -> null
+                if (!value) {
+                    this.setDataValue('tags', null);
+                    return;
+                }
 
                 // JSON字符串
                 if (value.startsWith('[')) {
@@ -118,26 +130,29 @@ const Property = sequelize.define("Property", {
                         normalized = JSON.parse(value);
                     } catch (e) {
                         console.error('解析tags JSON失败:', e);
-                        normalized = [];
+                        normalized = null;
                     }
                 }
                 // 换行分隔
                 else if (value.includes('\n')) {
                     normalized = value.split('\n').map(tag => tag.trim()).filter(tag => tag);
+                    // 如果过滤后为空数组，设为null
+                    if (normalized.length === 0) normalized = null;
                 }
                 // 逗号分隔
                 else if (value.includes(',')) {
                     normalized = value.split(',').map(tag => tag.trim()).filter(tag => tag);
+                    // 如果过滤后为空数组，设为null
+                    if (normalized.length === 0) normalized = null;
                 }
                 // 单个标签
                 else {
-                    normalized = value ? [value] : [];
+                    normalized = [value];
                 }
             }
-
-            // 确保是数组
-            if (!Array.isArray(normalized)) {
-                normalized = normalized ? [normalized] : [];
+            // 如果已经是数组，直接使用
+            else if (Array.isArray(value)) {
+                normalized = value.length > 0 ? value : null;
             }
 
             this.setDataValue('tags', normalized);
@@ -147,10 +162,22 @@ const Property = sequelize.define("Property", {
         type: DataTypes.JSON,
         comment: '配套设施',
         set(value) {
+            // 处理null、undefined或空值
+            if (value === null || value === undefined || value === '') {
+                this.setDataValue('facilities', null);
+                return;
+            }
+
             let normalized = value;
 
             if (typeof value === 'string') {
                 value = value.trim();
+
+                // 空字符串 -> null
+                if (!value) {
+                    this.setDataValue('facilities', null);
+                    return;
+                }
 
                 // JSON字符串
                 if (value.startsWith('[')) {
@@ -158,26 +185,29 @@ const Property = sequelize.define("Property", {
                         normalized = JSON.parse(value);
                     } catch (e) {
                         console.error('解析facilities JSON失败:', e);
-                        normalized = [];
+                        normalized = null;
                     }
                 }
                 // 换行分隔
                 else if (value.includes('\n')) {
                     normalized = value.split('\n').map(item => item.trim()).filter(item => item);
+                    // 如果过滤后为空数组，设为null
+                    if (normalized.length === 0) normalized = null;
                 }
                 // 逗号分隔
                 else if (value.includes(',')) {
                     normalized = value.split(',').map(item => item.trim()).filter(item => item);
+                    // 如果过滤后为空数组，设为null
+                    if (normalized.length === 0) normalized = null;
                 }
                 // 单个设施
                 else {
-                    normalized = value ? [value] : [];
+                    normalized = [value];
                 }
             }
-
-            // 确保是数组
-            if (!Array.isArray(normalized)) {
-                normalized = normalized ? [normalized] : [];
+            // 如果已经是数组，直接使用
+            else if (Array.isArray(value)) {
+                normalized = value.length > 0 ? value : null;
             }
 
             this.setDataValue('facilities', normalized);
