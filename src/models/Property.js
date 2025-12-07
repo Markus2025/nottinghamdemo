@@ -19,12 +19,28 @@ const Property = sequelize.define("Property", {
     type: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        comment: '类型'
+        comment: '类型',
+        set(value) {
+            // 将空字符串转换为undefined，让Sequelize的allowNull验证生效
+            if (value === '' || (typeof value === 'string' && value.trim() === '')) {
+                this.setDataValue('type', undefined);
+            } else {
+                this.setDataValue('type', value);
+            }
+        }
     },
     price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
-        comment: '月租（£）'
+        comment: '月租（£）',
+        set(value) {
+            // 将空字符串转换为undefined，让Sequelize的allowNull验证生效
+            if (value === '' || value === null) {
+                this.setDataValue('price', undefined);
+            } else {
+                this.setDataValue('price', value);
+            }
+        }
     },
     deposit: {
         type: DataTypes.DECIMAL(10, 2),
