@@ -99,6 +99,11 @@ async function getTeams(req, res, next) {
                     as: 'user',
                     attributes: ['id', 'nickname', 'avatar', 'campus']
                 }]
+            },
+            {
+                model: Property,
+                as: 'property',
+                attributes: ['id', 'title', 'images', 'contactQRCode']
             }
         ];
 
@@ -160,6 +165,11 @@ async function getMyTeam(req, res, next) {
                             as: 'user',
                             attributes: ['id', 'nickname', 'avatar', 'campus']
                         }]
+                    },
+                    {
+                        model: Property,
+                        as: 'property',
+                        attributes: ['id', 'title', 'images', 'contactQRCode']
                     }
                 ]
             }]
@@ -415,6 +425,11 @@ async function getTeamDetails(teamId) {
                     attributes: ['id', 'nickname', 'avatar', 'campus']
                 }],
                 order: [['joinedAt', 'ASC']]
+            },
+            {
+                model: Property,
+                as: 'property',
+                attributes: ['id', 'title', 'images', 'contactQRCode']
             }
         ]
     });
@@ -435,10 +450,29 @@ function formatTeamData(team) {
         joinedAt: tm.joinedAt
     }));
 
+    // 获取房源主图URL
+    let propertyImage = null;
+    if (team.property && team.property.images) {
+        const images = team.property.images;
+        // images可能是数组或换行分隔的字符串
+        if (Array.isArray(images) && images.length > 0) {
+            propertyImage = images[0];
+        } else if (typeof images === 'string' && images.includes('\n')) {
+            propertyImage = images.split('\n')[0];
+        } else if (typeof images === 'string' && images) {
+            propertyImage = images;
+        }
+    }
+
+    // 获取房东二维码
+    const landlordQrCode = team.property?.contactQRCode || null;
+
     return {
         id: team.id,
         propertyId: team.propertyId,
         propertyTitle: team.propertyTitle,
+        propertyImage: propertyImage,  // ✅ 新增：房源主图
+        landlordQrCode: landlordQrCode,  // ✅ 新增：房东二维码
         creator: {
             id: team.creator.id,
             nickname: team.creator.nickname,
