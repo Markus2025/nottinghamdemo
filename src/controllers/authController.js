@@ -23,13 +23,13 @@ async function login(req, res, next) {
 
         if (!user) {
             // 新用户，创建记录
-            // ✅ 不保存微信头像，设为null，让前端使用默认头像系统
+            // ✅ 可选保存微信头像，或由用户后续上传
             user = await User.create({
                 openId: openid,
                 nickname: userInfo?.nickName || '微信用户',
-                avatar: null  // 前端会根据用户ID自动分配彩色默认头像
+                avatar: userInfo?.avatarUrl || null  // 可选保存微信头像
             });
-            console.log('✅ 新用户创建成功，avatar设为null，使用前端默认头像');
+            console.log('✅ 新用户创建成功');
         } else if (userInfo) {
             // 更新用户信息
             // ✅ 只更新昵称，不保存微信头像
@@ -48,7 +48,7 @@ async function login(req, res, next) {
                 id: user.id,
                 openId: user.openId,
                 nickname: user.nickname,
-                avatar: null,  // ✅ 强制返回null，让前端使用默认头像
+                avatar: user.avatar,  // ✅ 返回实际头像值
                 campus: user.campus,
                 motto: user.motto
             }
@@ -88,7 +88,7 @@ async function updateProfile(req, res, next) {
         // 更新用户信息
         const updateData = {};
         if (nickname !== undefined) updateData.nickname = nickname;
-        // ✅ 不接受avatar更新，忽略前端传来的avatar
+        if (req.body.avatar !== undefined) updateData.avatar = req.body.avatar;  // ✅ 接受头像更新
         if (campus !== undefined) updateData.campus = campus;
         if (motto !== undefined) updateData.motto = motto;
 
@@ -98,7 +98,7 @@ async function updateProfile(req, res, next) {
             id: user.id,
             openId: user.openId,
             nickname: user.nickname,
-            avatar: null,  // ✅ 强制返回null，让前端使用默认头像
+            avatar: user.avatar,  // ✅ 返回实际头像值
             campus: user.campus,
             motto: user.motto
         });
